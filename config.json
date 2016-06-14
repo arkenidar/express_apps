@@ -1,3 +1,5 @@
 {
-    "DATABASE_URL": "postgres://postgres:postgres@localhost:5432/heroku"
+    "DATABASE_URL": "postgres://postgres:postgres@localhost:5432/heroku",
+    "REDISTOGO_URL": "redis://127.0.0.1",
+    "SESSION_SECRET": "bs6dhn9wFgsH5Jd!x£c!cI"
 }

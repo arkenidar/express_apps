@@ -10,8 +10,10 @@
     "start": "node index.js"
   },
   "dependencies": {
+    "connect-redis": "^3.0.2",
     "ejs": "2.4.1",
     "express": "4.13.3",
+    "express-session": "^1.13.0",
     "pg": "^5.1.0"
   },
   "repository": {

@@ -33,3 +33,26 @@ app.get('/db', function (request, response) {
   });
 })
 
+var REDIS_URL = process.env.REDISTOGO_URL || config.REDISTOGO_URL;
+
+var session = require('express-session');
+var RedisStore = require('connect-redis')(session);
+var options = {url: REDIS_URL};
+app.use(session({
+    store: new RedisStore(options),
+    secret: config.SESSION_SECRET,
+    unset: 'destroy',
+    proxy: true,
+    saveUninitialized: false,
+    resave: false,
+}));
+
+app.get('/session_test', function(request, response) {
+  if(!request.session.session_test)
+    request.session.session_test = 0;
+  var session_test = request.session.session_test;
+  session_test += 1;
+  session_test %= 10;
+  request.session.session_test = session_test;
+  response.json({session_test});
+});
