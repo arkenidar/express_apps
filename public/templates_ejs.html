@@ -49,7 +49,7 @@ ejs = new EJS({url: '/ejs/items.ejs'});
     }        
     
     update_items = function(){
-      $.getJSON('/json/items.json', update_items_json);
+      $.getJSON('/db', update_items_json);
     }
     
     // trigger update_items() in related situations
