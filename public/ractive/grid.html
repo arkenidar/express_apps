@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+
+<head>
+<title></title>
+<meta charset="utf-8">
+</head>
+
+<body>
+
+<style>
+body, #container, svg {
+  width: 100vw; 
+  height: 100vh;
+  margin: 0;
+}
+
+.line {
+  stroke: black;
+  stroke-width: 3;
+}
+</style>
+
+<script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+<script src="http://cdn.ractivejs.org/latest/ractive.min.js"></script>
+
+<div id="container"></div>
+<script id="template" type="text/ractive">
+<svg>
+
+{{#each grid : j}}
+{{#each grid[j] : i}}
+  {{#if i!= grid[j].length-1 && j!= grid.length-1}}
+  <rect class="filler"
+  width="{{size-(width-offset)}}" height="{{size-offset}}"
+  x="{{hsize+size*i-radius+offset+(width-offset)}}" y="{{hsize+size*j+offset}}"
+  style="fill: {{
+  ( !grid[j][i][0] && !grid[j][i][1] &&
+  !grid[j][i+1][0] && !grid[j+1][i][1] 
+  )?"violet":color }};"
+  />
+  {{/if}}
+
+{{/each}}
+{{/each}}
+
+{{#each grid : j}}
+{{#each grid[j] : i}}
+
+  {{#if j!= grid.length-1 }}
+  <rect class="line"
+  width="{{width-offset}}" height="{{size-(width-offset)}}"
+  x="{{hsize+size*i-radius+offset}}"
+  y="{{hsize+size*j-radius+offset+(width-offset)}}"
+  data-i="{{i}}" data-j="{{j}}" data-k="0"
+  style="fill: {{grid[j][i][0]?color:"violet" }};"
+  />
+  {{/if}}
+
+  {{#if i!= grid[j].length-1 }}
+  <rect class="line"
+  width="{{size-(width-offset)}}" height="{{width-offset}}"
+  x="{{hsize+size*i-radius+offset+(width-offset)}}"
+  y="{{hsize+size*j-radius+offset}}"
+  data-i="{{i}}" data-j="{{j}}" data-k="1"
+  style="fill: {{grid[j][i][1]?color:"violet" }};"
+  />
+  {{/if}}
+
+{{/each}}
+{{/each}}
+
+{{#each grid : j}}
+{{#each grid[j] : i}}
+<circle cx="{{hsize+size*i}}" cy="{{hsize+size*j}}" r="{{radius}}"
+ stroke="black" stroke-width="3" fill="red"/>
+{{/each}}
+{{/each}}
+
+</svg>
+</script>
+
+<script>
+var grid, rows, cols;
+rows = cols = 4;
+grid = [];
+for(var i=0; i<(rows+1); i++)
+{ 
+  grid[i] = [];
+  for(var j=0; j<(cols+1); j++){
+    grid[i][j] = [true, true];
+  }
+}
+
+ractive = new Ractive({
+  el: "#container",
+  template: "#template",
+  data: {
+    grid,
+    color: "grey",
+    size: 50, // square size
+  },
+  computed: {
+    hsize: function(){ return this.get("size") * 0.50 },
+    width: function(){ return this.get("size") * 0.30 },
+    radius: function(){ return this.get("size") * 0.20},
+    offset: function(){ return this.get("size") * 0.10},
+  },
+  
+});
+
+function init(){
+  
+  function toggle(i, j, k){
+    var grid = ractive.get("grid");
+    grid[i][j][k] = ! grid[i][j][k];
+    ractive.set("grid", grid);
+  }
+  
+  $(".line").click(function(event){
+    event.preventDefault();
+    toggle(
+      $(this).data("j"),
+      $(this).data("i"),
+      $(this).data("k")
+    );
+  });
+}
+$(init);
+
+</script>
+
+</body>
+
+</html>

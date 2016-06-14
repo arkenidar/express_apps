@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+<title>Interactive templating Examples</title>
+<meta charset="UTF-8">
+</head>
+<body>
+
+<script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+<script type="text/javascript" src="/js/ejs/ejs.js"></script>
+
+<!-- items example -->
+<style>
+.currency { text-align: right; }
+.not_stocked { color: red; }
+</style>
+<div>Thinking in EJS <br>(a porting from "Thinking in React")</div>
+<input id="items" placeholder="Search filter"><br>
+<input type="checkbox" id="only_in_stock">Only show products in stock<br>
+<div id="container_for_items_example"></div>
+
+<script type="text/javascript">
+// items example
+
+// on init event
+$(function(){
+
+//alert(document.all.items_template.innerHTML)
+var array=
+[
+{category: "Sporting Goods", price: "$49.99", stocked: true, name: "Football"},
+{category: "Sporting Goods", price: "$9.99", stocked: true, name: "Baseball"},
+{category: "Sporting Goods", price: "$29.99", stocked: false, name: "Basketball"},
+{category: "Electronics", price: "$99.99", stocked: true, name: "iPod Touch"},
+{category: "Electronics", price: "$399.99", stocked: false, name: "iPhone 5"},
+{category: "Electronics", price: "$199.99", stocked: true, name: "Nexus 7"}
+];
+json = {items: array};
+
+ejs = new EJS({url: '/ejs/items.ejs'});
+
+    update_items = function(){
+        var list=[];
+        var items=json.items;
+        var query = $("#items").val();
+        var only_in_stock = $("#only_in_stock").is(":checked");
+        for(var i in items){
+            var item = items[i];
+            if(item.name.indexOf(query)!==-1 && (only_in_stock?item.stocked:true) ){
+               list.push(item); 
+            }
+        } 
+        
+        //ractive.set("items", list);
+        
+        html = ejs.render({items: list });
+        $('#container_for_items_example').html(html);
+        
+        return true;
+    }        
+    
+    // trigger update_items() in related situations
+    update_items();
+    $("#items").change(update_items); $("#items").keyup(update_items);
+    $("#only_in_stock").change(update_items);
+});
+</script>
+
+</body>
+</html>

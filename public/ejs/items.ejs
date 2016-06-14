@@ -1,0 +1,10 @@
+<table>
+
+<% items.forEach(function(i) { %>    
+    <tr>
+      <td class="<% if(!i.stocked) { %>not_stocked<% } %>" ><%= i.name %></td>
+      <td class="currency"><%= i.price %></td> 
+    </tr>
+<% }); %>
+
+</table>

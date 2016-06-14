@@ -1,0 +1,281 @@
+<!doctype html>
+<html>
+<head>
+<title>Interactive templating Examples</title>
+<meta charset="UTF-8">
+
+<!-- Material Design Lite -->
+<script src="https://code.getmdl.io/1.1.3/material.min.js"></script>
+<link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.indigo-pink.min.css">
+<!-- Material Design icon font -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+<style>
+body {
+  padding: 20px;
+  background: #fafafa;
+  position: relative;
+}
+
+p, a { font-size: 150%; }
+
+</style>
+
+</head>
+<body>
+
+<h3>Interactive templating Examples</h3>
+
+<p>Interactive Templating with RactiveJS is demonstrated, with easily understandable code.</p>
+
+<a href="https://github.com/arkenidar/javascript-examples/tree/gh-pages" target="_blank"><b>GitHub repository</b> of this GitHub Page</a> <br>
+<a href="http://www.ractivejs.org" target="_blank">Home page of <b>RactiveJS (#InteractiveTemplating)</b></a> <br>
+ <br>
+<p><b>RactiveJS is a JavaScript framework for HTML5 Web Applications</b> <i>(software that works in an internet browser)</i>. <br>
+ It is used here with this basic and informative demonstrations. <br>
+ It has <b>similar goals</b> of <i>AngularJS</i> and <i>ReactJS</i>. It is <u><b>simpler</b></u> to apply (at least in my use cases). <br>
+ In this example page it is also demonstrated some use of 
+ <b><a href="https://getmdl.io/" target="_blank">Material Design Lite (MDL)</a></b>. <br>
+ Some people use <b>Angular plus Angular Material</b>. Here I used <b>Ractive plus Material Design Lite (MDL)</b>. <br>
+ </p>
+ 
+
+<script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+  
+<!-- ractive -->
+<script src="http_cdn.ractivejs.org_0.7.3_ractive.min.js"></script>
+<script>
+Ractive.DEBUG = false;
+</script>
+
+<!-- items example -->
+<h4>#ractive_js Items listing 
+  (<i>ported</i> from a <a href="https://facebook.github.io/react/docs/thinking-in-react.html" target="_blank">#react_js example</a>)
+</h4>
+<p>They are equivalent but the version coded in Ractive is shorter (10% shorter) and simpler to reason about than the one in React.</p>
+<style>
+.currency { text-align: right; }
+.not_stocked { color: red; }
+</style>
+<h5><i>Thinking in Ractive</i> (a porting from Thinking in React)</h5>
+<div id="container_for_items_example"></div>
+<script id="template_for_items_example" type="text/ractive"> 
+<!-- <input id="items" placeholder="Search filter"><br> -->
+<div class="mdl-textfield mdl-js-textfield">
+  <input class="mdl-textfield__input" type="text" id="items">
+  <label class="mdl-textfield__label" for="items">Search...</label>
+</div>
+<!-- <input type="checkbox" id="only_in_stock">Only show products in stock<br> -->
+<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="only_in_stock">
+  <input type="checkbox" id="only_in_stock" class="mdl-checkbox__input">
+  <span class="mdl-checkbox__label">Only show products in stock</span>
+</label>
+<table>
+{{#each items}}
+    <tr>
+      <td class="{{#if ! .stocked }}not_stocked{{/if}}" >{{ .name }}</td>
+      <td class="currency">{{ .price }}</td> 
+    </tr>
+{{/each}}
+</table>
+</script>
+
+<script type="text/javascript">
+// items example
+
+// on init event
+$(function(){
+    var ractive = new Ractive({
+      el: "#container_for_items_example",
+      template: "#template_for_items_example",
+      data: {
+        items: [],
+        dollar: function(n){ // formats numbers for dollar currency
+            format = function(number, n, x) {
+              var re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\.' : '$') + ')';
+              return number.toFixed(Math.max(0, ~~n)).replace(new RegExp(re, 'g'), '$&,');
+            };
+          return "$"+format(n, 2, 3); 
+        },
+      }
+    });
+
+    function update_items(){
+        var list=[];
+        var items=            
+            [
+            {category: "Sporting Goods", price: "$49.99", stocked: true, name: "Football"},
+            {category: "Sporting Goods", price: "$9.99", stocked: true, name: "Baseball"},
+            {category: "Sporting Goods", price: "$29.99", stocked: false, name: "Basketball"},
+            {category: "Electronics", price: "$99.99", stocked: true, name: "iPod Touch"},
+            {category: "Electronics", price: "$399.99", stocked: false, name: "iPhone 5"},
+            {category: "Electronics", price: "$199.99", stocked: true, name: "Nexus 7"}
+            ]
+        var query = $("#items").val();
+        var only_in_stock = $("#only_in_stock").is(":checked");
+        for(var i in items){
+            var item = items[i];
+            if(item.name.indexOf(query)!==-1 && (only_in_stock?item.stocked:true) ){
+               list.push(item); 
+            }
+        }        
+        ractive.set("items", list);
+        return true;
+    }        
+    
+    // trigger update_items() in related situations
+    update_items();
+    $("#items").change(update_items); $("#items").keyup(update_items);
+    $("#only_in_stock").change(update_items);
+});
+</script>
+  
+<!-- customers example -->
+<div id="container_for_customers_example"></div>
+<script id="template_for_customers_example" type="text/ractive">     
+<h4>#ractive_js RactiveJS implementation of "linked select"</h4>
+
+<span>Customers: </span>
+<select id="_customers">
+    {{#each customers}}
+        <option>{{.}}</option>
+    {{/each}}
+</select> <br>
+
+<span>Order ID: </span>
+<select id="_orders">
+    {{#each orders}}
+        <option>{{.}}</option>
+    {{/each}}
+</select> <br>
+</script>
+
+<script type="text/javascript">    
+// customers example
+
+// on init event
+$(function(){
+    
+    // customers
+    var customers_collection = {"Customer A": [1,2,3], "Customer B":[5,6,7]};
+    var ractive = new Ractive({
+      el: "#container_for_customers_example",
+      template: "#template_for_customers_example",
+      data: {
+        customers: Object.keys(customers_collection),
+      }
+    });
+    function update_customers(){
+        ractive.set("orders", customers_collection[$("#_customers").val()])
+    }
+    
+    // trigger update_customers() in related situations
+    update_customers(); $("#_customers").change(update_customers);
+});
+</script>
+
+<!-- 2way example -->
+<div id="container_for_2way_example"></div>
+<script id="template_for_2way_example" type="text/ractive"> 
+    <h4>#ractive_js Two way data binding</h4>
+    <!-- <input placeholder="Type your name" value="{{user.name}}"> -->
+    <div class="mdl-textfield mdl-js-textfield">
+      <input class="mdl-textfield__input" type="text" id="user_name" value="{{user.name}}" >
+      <label class="mdl-textfield__label" for="user_name">Type your name</label>
+    </div>
+    <!-- <input placeholder="Type your age" value="{{user.age}}"> -->
+    <div class="mdl-textfield mdl-js-textfield">
+      <input class="mdl-textfield__input" type="text" id="user_age" value="{{user.age}}">
+      <label class="mdl-textfield__label" for="user_age">Type your age</label>
+    </div>
+    <p>name: {{user.name}}</p>
+    <p>age: {{user.age}}</p>
+    <!-- <button id="inc_age">set age</button> -->
+    <button id="inc_age" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+      set age
+    </button>
+</script>
+
+<script type="text/javascript">    
+// 2way example
+
+// on init event
+$(function(){
+    
+    var ractive = new Ractive({
+      el: "#container_for_2way_example",
+      template: "#template_for_2way_example",
+      data: {
+        user: {
+          name: "Mark",
+          age: 45,
+        }
+      }
+    });
+    
+    $("#inc_age").click(function(){
+        ractive.set("user.age", parseInt(ractive.get("user.age"))+1)
+    });
+});
+</script>
+
+<br>
+
+<!-- jquery -->
+<h4>#jquery JQuery implementation of "linked select"</h4>
+<span>Customers: </span><select id="customers"></select> <br>
+<span>Order ID: </span><select id="orders"></select> <br>
+<script>
+$(function(){
+    
+    // mocks the request/response of server data
+    function http_get(url, data, done){
+        var server_available = false;
+        if(server_available){
+          jQuery.get(url, data).done(done);
+        }else{
+          var response;
+          if(url=="orders-mock.php"){
+              var order = ["","1\n2\n3\n", "5\n6\n7\n"];
+              response = order[data.customer_id];
+          }else if(url=="customers.txt"){
+              response = "1, Customer A\n2, Customer B\n";
+          }
+          done(response); 
+        }
+    }
+    
+    function customers_on_change(){
+        var customer_id_value = parseInt($("select#customers").val());
+        var select_orders = $("select#orders");
+        select_orders.empty();
+        http_get("orders-mock.php", {customer_id:customer_id_value}, function(data){
+            var string = data;
+            var lines = string.split("\n");
+            for(line in lines){
+                var order_id = lines[line];
+                if(order_id=="") continue;
+                select_orders.append($("<option>", {value: order_id, text: order_id}));
+            }
+        });
+    }
+    
+  var select_customers = $("select#customers");
+  select_customers.on("change", customers_on_change);
+  http_get("customers.txt", {}, function(data){
+    var string = data;
+    var lines = string.split("\n");
+    for(line in lines){
+      var fields = lines[line].split(",");
+      if(fields.length!=2) continue;
+      var customer_id = fields[0];
+      var name = fields[1];
+      select_customers.append($("<option>", {value: customer_id, text: name}));
+    }
+    customers_on_change();
+  });
+});
+</script>  
+
+</body>
+</html>
