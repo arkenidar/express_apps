@@ -1,6 +1,11 @@
+
+var config = require('../config.json');
+var pg = require('pg');
+var DATABASE_URL = process.env.DATABASE_URL || config.DATABASE_URL;
+
 var records = [
-    { id: 1, username: 'jack', password: 'secret', displayName: 'Jack', emails: [ { value: 'jack@example.com' } ] }
-  , { id: 2, username: 'jill', password: 'birthday', displayName: 'Jill', emails: [ { value: 'jill@example.com' } ] }
+    { id: 1, username: 'jack', password: 'secret', displayName: 'Jack', email: 'jack@example.com' }
+  , { id: 2, username: 'jill', password: 'birthday', displayName: 'Jill', email: 'jill@example.com' }
 ];
 
 exports.findById = function(id, cb) {
@@ -11,6 +16,18 @@ exports.findById = function(id, cb) {
     } else {
       cb(new Error('User ' + id + ' does not exist'));
     }
+    
+    /*
+    pg.connect(DATABASE_URL, function(err, client, done) {
+    client.query('SELECT * FROM items', function(err, result) {
+      done();
+      if (err)
+       { console.error(err); response.send("Error " + err); }
+      else
+       { response.json( {items: result.rows} ); }
+    });
+    */
+    
   });
 }
 
