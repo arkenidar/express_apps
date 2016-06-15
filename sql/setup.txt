@@ -2,3 +2,4 @@
 heroku addons:create heroku-postgresql:hobby-dev
 
 cat sql/db.sql | heroku pg:psql
+cat sql/users.sql | heroku pg:psql
